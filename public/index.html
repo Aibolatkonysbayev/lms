@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced People Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .course { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+    .auth-form { max-width: 400px; margin: 50px auto; }
+    input { width: 100%; padding: 8px; margin: 5px 0 15px; }
+    button { background: #0066cc; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Advanced People Demo</h1>
+    <div id="app">
+      <div id="auth-section" class="auth-form">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email" value="test@test.com">
+        <input type="password" id="password" placeholder="Password" value="password">
+        <button onclick="login()">Login</button>
+        <button onclick="showCourses()">View Courses (without login)</button>
+      </div>
+      <div id="courses-section" style="display: none;">
+        <h2>Available Courses</h2>
+        <div id="courses-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        showCourses();
+      } else {
+        alert('Login failed');
+      }
+    }
+
+    async function showCourses() {
+      document.getElementById('auth-section').style.display = 'none';
+      const response = await fetch('/api/demo/courses');
+      const courses = await response.json();
+      
+      const coursesList = document.getElementById('courses-list');
+      coursesList.innerHTML = courses.map(course => `
+        <div class="course">
+          <h3>${course.titleRu}</h3>
+          <p>${course.descriptionRu}</p>
+          <p><strong>Category:</strong> ${course.category}</p>
+          <p><strong>Duration:</strong> ${course.durationEstimate} hours</p>
+        </div>
+      `).join('');
+      
+      document.getElementById('courses-section').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
